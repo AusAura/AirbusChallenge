@@ -1,5 +1,4 @@
 # IMPORTS
-from pathlib import Path
 import os
 
 import tensorflow.keras as tfk
@@ -13,7 +12,7 @@ from utils import make_blend, SaveCSV, separate_masks, encode_mask
 # CONSTANTS/PARAMETERS
 MODEL_NAME = 'model.01-val_loss 0.3522-dice 0.6840.keras'
 
-DATASET_FOLDER = Path('E:\\airbus-ship-detection\\test_v2') #ROOT_PATH / 'test_v2'
+DATASET_FOLDER = ROOT_PATH / 'test_v2'
 BLENDED_OUTPUT_FOLDER = ROOT_PATH / 'output'
 
 # LOADING THE DATASET
