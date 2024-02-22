@@ -13,7 +13,7 @@ from utils import make_blend, SaveCSV, separate_masks, encode_mask
 # CONSTANTS/PARAMETERS
 MODEL_NAME = 'model.01-val_loss 0.3522-dice 0.6840.keras'
 
-SAMPLE_FOLDER = Path('E:\\airbus-ship-detection\\test_v2') #ROOT_PATH / 'test_v2'
+DATASET_FOLDER = Path('E:\\airbus-ship-detection\\test_v2') #ROOT_PATH / 'test_v2'
 BLENDED_OUTPUT_FOLDER = ROOT_PATH / 'output'
 
 # LOADING THE DATASET
@@ -32,9 +32,9 @@ if not BLENDED_OUTPUT_FOLDER.exists():
 
 # ENTRY POINT
 if __name__ == '__main__':
-    images = os.listdir(SAMPLE_FOLDER) # Taking list of files in sample folder
+    images = os.listdir(DATASET_FOLDER) # Taking list of files in sample folder
     first_image_name = images[0]
-    first_image = tfk.preprocessing.image.load_img(SAMPLE_FOLDER / first_image_name) # Loading first image
+    first_image = tfk.preprocessing.image.load_img(DATASET_FOLDER / first_image_name) # Loading first image
     image_width, image_height = first_image.size
 
     model = unet_model((image_width, image_height, 3),) # Init model
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     for image in images:
         # Image loading and preprocessing
         image_name = image
-        image = tfk.preprocessing.image.load_img(SAMPLE_FOLDER / image) # Loading image
+        image = tfk.preprocessing.image.load_img(DATASET_FOLDER / image) # Loading image
 
         # Raise error if dataset shape is not homogenous
         if image.size != (image_width, image_height):
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         mask: np.ndarray = model.predict(image_array) 
 
         # Blend mask and image
-        blended = make_blend(image_name, mask, SAMPLE_FOLDER)
+        blended = make_blend(image_name, mask, DATASET_FOLDER)
         blended.save(BLENDED_OUTPUT_FOLDER / (image_name + '.png'))
 
         # Divide mask if multiple objects

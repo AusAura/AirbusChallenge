@@ -25,7 +25,6 @@ MODELS_FOLDER = ROOT_PATH / 'models'
 
 TRAIN_FOLDER = Path('E:\\airbus-ship-detection\\train_v2') # ROOT_PATH / 'train_v2'
 TRAIN_DATASET_FILE_FOLDER = ROOT_PATH
-SAMPLE_DATASET_FILE_FOLDER = ROOT_PATH
 
 EMPTY_IMAGES = 150 #000 # how many empty images will take from the train set
 SHIPS_IMAGES = 81 #000 # how many images with ships/masks will take from the train set

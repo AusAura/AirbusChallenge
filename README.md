@@ -2,7 +2,35 @@
 
 ## Abstract
 
-This is a supervised U-Net model for image segmentation, specifically for ship identification on sattelite images.  For loss functions, Dice score and BCE + Dice score metrics are used. As optimizer, uses Adam. Activation - ELU + Sigmoid. Kernel initializer = he_normal.
+This is a supervised U-Net model for image segmentation, specifically for ship identification on sattelite images.  
+
+- Loss: Dice score, BCE + Dice Score 
+- Optimizer: uses Adam. 
+- Activation: ELU + Sigmoid. 
+- Kernel initializer: he_normal.
+
+
+#### Installation
+
+1. Clone the repository.
+2. Install dependencies with the pipenv.
+3. For training, specify TRAIN_FOLDER in 'train.py' for the train dataset and other parameters.
+4. For predicting, specify DATASET_FOLDER in 'predict.py' for the train dataset and other parameters.
+
+
+#### Structure
+
+'models' - contains saved checkpoints (keras), histories (pickle) and models (keras). Used both for training and predicting.
+'output' - for saving original images blended with predicted mask (png).
+
+'src' - contains all the code:
+1. 'crop.py' have data generators that are used for cropping or possibly other data manipulations during training.
+2. 'interfaces.py' contains abstracts for data generators, save function and other possible extensions.
+3. 'model.py' have the model structure.
+4. 'predict.py' a script for prediction.
+5. 'train.py' a script for training the model.
+6. 'utils.py' contains miscellacious functions, in current version - for predicting only.
+
 
 ### Training
 
@@ -10,7 +38,27 @@ To train the model, use train.py file.
 
 It can use original image size, 3x3 and 2x2 crop data generators for better training and performance optimization. They are located in crop.py, and the mode could be selected in the file.
 
-MODELS_FOLDER (for saving models) is created if does not exist.
+- Model splits dataset on train and validation parts.
+- Creates checkpoints with best results.
+- Supports loading previously trained version of the model (.keras) with the history (.pickle) and allows continue the training.
+- In the end, saves last version of the model with the history.
+- Then visualizes the complete history of training (with previous history). The 'visualize' function is responsible for that and can be modified. 
+
+Parameters:
+
+1. ROOT_PATH - a root for the project, by default the value is selected automatically.
+2. MODEL_NAME - a model file that will be used to continue the training (optional).
+3. HISTORY_NAME - a model file that will be used to continue the training, contains the data from the previous training sessions (optional).
+4. MODELS_FOLDER - a folder from where model will be loaded/to where they will be saved (created if does not exist).
+5. TRAIN_FOLDER - a folder with the train dataset images.
+6. TRAIN_DATASET_FILE_FOLDER - a folder with the dataset .csv file, by default - the root.
+7. EMPTY_IMAGES - how many random empty images will be taken. Relies on the .csv file for it.
+8. SHIPS_IMAGES - how many random images with ships will be taken. Relies on the .csv file for it. 
+9. MASK_DF - you can use mask to limit the dataset by specifying EMPTY_IMAGES and SHIPS_IMAGES.
+10. EPOCHS - epochs during training.
+11. ADAM_RATE - Adam learning rate that will be used in optimizer.
+12. BATCH_SIZE - batch size that will be used during training.
+13. TEST_PART_SIZE - the size of the validation part.
 
 Leave MODEL_NAME and HISTORY_NAME empty if do not want to load prevously saved weights and history.
 Other parameters are necessary.
@@ -25,20 +73,19 @@ Train dataset should have the following features:
 - Each row should have: 'NaN' if image does not have a ship; single RLE encoded mask for 1 ship.
 - Each image can have multiple masks in different rows.
 
-You can use mask to limit the dataset by specifying EMPTY_IMAGES and SHIPS_IMAGES.
-
-Model splits dataset on train and validation parts.
-Creates checkpoints with best results
-Supports loading previously trained version of the model with the history and allows continue the training
-In the end, saves last version of the model with the history
-Then visualizes the complete history of training (with previous history)
 
 ### Predicting
 
 For predictions, use predict.py file.
 
-MODEL_NAME is necessary.
-Output folder is created if does not exist.
+Parameters:
+
+1. MODEL_NAME (necessary) - what model will be used for predicting.
+2. SAMPLE_FOLDER - folder with the dataset images.
+3. BLENDED_OUTPUT_FOLDER - Output folder for images with blended with predicted mask (created if does not exist). 
+4. sample_set - .csv file with the structure that will be taken as basis for 'results.csv' and dataset.
+5. SAMPLES_LIMIT - quantity of random images from the dataset, basically to limit the process.
+6. saver - a class with save functionality for the results. Basic - saving to CSV file in the root directory (creates the file).
 
 Dataset should have the following features:
 
@@ -52,9 +99,17 @@ Dataset should have the following features:
 - As the next step, model divides different objects on the predicted masks.
 - Each single mask is saved in the results.csv file then as separate row.
 
+
+Prediction using the following functions from the utils.py file:
+1. 'separate_masks' to split mask with multiple ships on the single ones.
+2. 'RLE encoder' to encode the predicted and divided mask with a single ship.
+3. 'make_blend' that blends original image with the mask. 
+
+
 ## EDA of Basic Dataset
 
 For detailed analysis, please check the EDA.ipybn file. Short version could be found below.
+
 
 ### Results
 
@@ -64,7 +119,9 @@ Our analysis shows that columns have np 'object'type which should not be an issu
 In NumPy, 'NaN' is a float.
 Values with masks have 'string' type.
 
+
 #### Image quantity:
+
 1. **Train set:**
 - Total images - 192 556
 - Total rows (empty, single mask, multiple mask) - 231 723
@@ -82,14 +139,17 @@ Total images - 15 606
 As we can see, there are 42556 images with 81723 ships on them.
 It means that roughly 1/4 of the dataset has masks (with ships).
 
+
 #### Visual analysis:
 By running the code a few times, we can learn that some images seem to not detect a few ships. However, false-positives are not present or rare.
+
 
 ## Image processing
 
 ### RLE Decoder
 
 Since masks from the train dataset are RLE encoded, it is necessary to decode them before training. For that, RLE decoder is built-in to the data generator.
+
 
 ### Crop and Data Generators
 
@@ -111,6 +171,7 @@ Available modes:
 
 Use 'data_generator' in crop.py file to select one.
 
+
 ## U-Net Model
 ### Abstract
 
@@ -119,6 +180,7 @@ The U-Net model is a convolutional neural network architecture primarily used fo
 The architecture of the U-Net model is characterized by a U-shaped structure, which consists of a contracting path and an expansive path.
 
 The model structure is placed in model.py file.
+
 
 ### Modifications
 
@@ -129,6 +191,7 @@ This CNN is based on classic U-Net with small changes like:
 - Consequentially, we will take 'he_normal' instead of 'glorot_uniform' for activation that is more suited for Sigmoid
 - Using ELU instead ReLU.
 - Added BatchOptimization
+
 
 ### Decision Grounding
 
@@ -150,6 +213,7 @@ Dropout is an effective regularization technique that improves the generalizatio
 4. **BatchNormalization**
 
 In U-Net architecture, BatchNormalization is also usually applied after activation layers. This is a common practice that helps stabilize training and accelerate model convergence. In addition to stabilization, BatchNormalization can also speed up the training process by reducing the need for lower learning rates and helping to avoid issues such as gradient vanishing.
+
 
 #### Parameters:
 
@@ -175,6 +239,7 @@ Kf is a custom parameter that is used to easily regulate quantity of filters on 
 Coefficient 0.25 showed a bit faster results than 0.5. However, it is not completely clear at the moment which is better for accuracy.
 Coefficiting 1 caused 'dead neurons' issue.
 
+
 ### Loss Functions
 
 For scoring, two loss functions were tested: dice score and BCE + Dice Loss combination.
@@ -193,6 +258,7 @@ For now, only Dice Score is selected.
 
 Loss functions are placed in train.py file.
 
+
 ## Model Compilation and Dataset Splitting
 
 ### Splitting our set on train and validation parts, connecting original images with the data generator and defining our model
@@ -208,15 +274,18 @@ For checkpoints, you can change 'callback' variable.
 
 Metrics could be changed during the model compilation.
 
+
 ### Training
 
 You can continue to train your previously saved model.
+
 
 ## Evaluating the Results
 
 These functions can be used for results evaluation.
 
 ![Plot with the results](results.png)
+
 
 ### Result
 
