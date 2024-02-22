@@ -33,7 +33,7 @@ class DataGenerator(ABC, tfk.utils.Sequence):
 
         Returns numpy array with 1 - mask, 0 - empty
         '''
-        img = np.zeros(shape[0]*shape[1], dtype=np.float32) # Create empty array for mask
+        img = np.zeros(int(shape[0]*shape[1]), dtype=np.float32) # Create empty array for mask
 
         if not(type(mask_rle) is float):
             # If not NaN
@@ -47,7 +47,7 @@ class DataGenerator(ABC, tfk.utils.Sequence):
             for lo, hi in zip(starts, ends):
                 img[lo:hi] = 1.0
 
-        return img.reshape((shape[0], shape[1])).T
+        return img.reshape((int(shape[0]), int(shape[1]))).T
     
     @staticmethod
     def get_first_sizes(self) -> tuple[int, int]:

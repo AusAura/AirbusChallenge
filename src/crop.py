@@ -18,8 +18,8 @@ class Crop2x2Generator(CropGenerator):
 
     def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray]:
         # Creating empty NP arrays for image and mask
-        mask = np.empty((self.batch_size, self.self.image_sizes[0], self.self.image_sizes[1]), np.float32)
-        image = np.empty((self.batch_size, self.self.image_sizes[0], self.self.image_sizes[1], 3), np.float32)
+        mask = np.empty((self.batch_size, int(self.image_sizes[0]/2), int(self.image_sizes[1]/2)), np.float32)
+        image = np.empty((self.batch_size, int(self.image_sizes[0]/2), int(self.image_sizes[1]/2), 3), np.float32)
 
         for item in range(self.batch_size):
             # Single batch processing
@@ -75,8 +75,8 @@ class Crop3x3Generator(CropGenerator):
 
     def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray]:
         # Creating empty NP arrays for image and mask
-        mask = np.empty((self.batch_size, self.self.image_sizes[0] , self.self.image_sizes[1]), np.float32)
-        image = np.empty((self.batch_size, self.self.image_sizes[0], self.self.image_sizes[1], 3), np.float32)
+        mask = np.empty((self.batch_size, int(self.image_sizes[0]/3) , int(self.image_sizes[1]/3)), np.float32)
+        image = np.empty((self.batch_size, int(self.image_sizes[0]/3), int(self.image_sizes[1]/3), 3), np.float32)
 
         for item in range(self.batch_size):
             # Single batch processing
